@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const config = {
+    const defaultConfig = {
         rssUrl: "https://mytechbuddyblog.blogspot.com/feeds/posts/default",
         containerId: "blog-widget-container",
         maxPosts: 3,
         defaultImageUrl: "https://via.placeholder.com/800x400.png?text=Blog+Post"
     };
+
+    const config = typeof blogWidgetConfig !== 'undefined'
+        ? { ...defaultConfig, ...blogWidgetConfig }
+        : defaultConfig;
 
     const fetchBlogPosts = async () => {
         const blogContainer = document.getElementById(config.containerId);
@@ -34,19 +38,32 @@ document.addEventListener("DOMContentLoaded", () => {
             items.forEach(item => {
                 const title = item.title;
                 const link = item.link;
-                // Use thumbnail, replace size for higher res, or fallback to default
-                const imageUrl = item.thumbnail ? item.thumbnail.replace('/s72-c/', '/s800/') : config.defaultImageUrl;
 
-                // Create a snippet from the description
+                // Create a temporary div to parse the description HTML
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = item.description;
+
+                // Extract image from description or use thumbnail/default
+                let imageUrl = config.defaultImageUrl;
+                const img = tempDiv.querySelector('img');
+
+                if (img && img.src && img.src.startsWith('http')) {
+                    imageUrl = img.src;
+                } else if (item.thumbnail) {
+                    // Use thumbnail, replace size for higher res
+                    imageUrl = item.thumbnail.replace('/s72-c/', '/s800/');
+                }
+
+                // Create a snippet from the description
                 const snippet = tempDiv.textContent.trim().substring(0, 100) + '...';
 
                 const postElement = document.createElement('div');
                 postElement.classList.add('blog-post');
                 postElement.innerHTML = `
                     <a href="${link}" target="_blank" rel="noopener noreferrer">
-                        <img src="${imageUrl}" alt="${title}">
+                        <div class="blog-post-image-container">
+                            <img src="${imageUrl}" alt="${title}">
+                        </div>
                         <h3>${title}</h3>
                         <p>${snippet}</p>
                     </a>
