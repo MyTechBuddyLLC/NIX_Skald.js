@@ -46,6 +46,18 @@ The widget can be configured by creating a `blogWidgetConfig` object in your HTM
 | `maxPosts`        | The maximum number of blog posts to display.       | `3`                                                          |
 | `defaultImageUrl` | The URL of the default image to use for blog posts. | `https://via.placeholder.com/800x400.png?text=Blog+Post`       |
 
+### Series Menu
+
+The widget can display a menu of blog post "series" based on a common prefix in the post content. This is useful for grouping related posts together. The series menu is configured by adding a `series` object to your `blogWidgetConfig`.
+
+| Option         | Description                                                                                             | Default Value   |
+| -------------- | ------------------------------------------------------------------------------------------------------- | --------------- |
+| `enabled`      | Set to `true` to enable the series menu.                                                                | `false`         |
+| `label`        | The title to display above the series menu (e.g., "Featured Series").                                     | `"Series"`      |
+| `tagPrefix`    | The prefix in your blog post content that identifies a series (e.g., `"Series:"`).                      | `"Series:"`     |
+| `menuPosition` | Where to display the menu. Options are: `'top'`, `'bottom'`, `'first-card'`, `'last-card'`.             | `'first-card'`  |
+| `orderBy`      | How to sort the series. Options are: `'alphabetical'`, `'most-recent'`.                                 | `'alphabetical'`|
+
 ## Examples
 
 ### Basic Example
@@ -90,7 +102,14 @@ This example shows how to use the widget with a custom configuration.
             rssUrl: "https://mytechbuddyblog.blogspot.com/feeds/posts/default",
             containerId: "my-blog-widget",
             maxPosts: 5,
-            defaultImageUrl: "https://via.placeholder.com/800x400.png?text=My+Blog+Post"
+            defaultImageUrl: "https://via.placeholder.com/800x400.png?text=My+Blog+Post",
+            series: {
+                enabled: true,
+                label: "Featured Series",
+                tagPrefix: "Series:",
+                menuPosition: "top",
+                orderBy: "most-recent"
+            }
         };
     </script>
     <script src="blog-widget.js"></script>
