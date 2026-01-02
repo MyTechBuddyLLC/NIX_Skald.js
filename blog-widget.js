@@ -1,10 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const config = {
+    const defaultConfig = {
         rssUrl: "https://mytechbuddyblog.blogspot.com/feeds/posts/default",
         containerId: "blog-widget-container",
         maxPosts: 3,
-        defaultImageUrl: "https://via.placeholder.com/800x400.png?text=Blog+Post"
+        defaultImageUrl: "https://via.placeholder.com/800x400.png?text=Blog+Post",
+        categoryPanel: {
+            enabled: false,
+            label: "Categories",
+            tagPrefix: "",
+            panelPosition: "first-card", // 'first-card' or 'last-card'
+            orderBy: "alphabetical", // 'alphabetical' or 'most-recent'
+            emptyMessage: "No categories found"
+        }
     };
+
+    // Deep merge the user's config with the default config
+    const deepMerge = (defaults, userConfig) => {
+        const merged = { ...defaults };
+        for (const key in userConfig) {
+            if (userConfig.hasOwnProperty(key)) {
+                if (typeof userConfig[key] === 'object' && userConfig[key] !== null && !Array.isArray(userConfig[key])) {
+                    merged[key] = deepMerge(defaults[key] || {}, userConfig[key]);
+                } else {
+                    merged[key] = userConfig[key];
+                }
+            }
+        }
+        return merged;
+    };
+
+    const config = typeof blogWidgetConfig !== 'undefined'
+        ? deepMerge(defaultConfig, blogWidgetConfig)
+        : defaultConfig;
+
 
     const fetchBlogPosts = async () => {
         const blogContainer = document.getElementById(config.containerId);
@@ -23,36 +51,125 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error(data.message);
             }
 
-            blogContainer.innerHTML = ''; // Clear existing content
-            const items = data.items.slice(0, config.maxPosts);
+            const items = data.items;
 
             if (items.length === 0) {
                  blogContainer.innerHTML = '<p>No blog posts found.</p>';
                  return;
             }
 
-            items.forEach(item => {
+            const postsContainer = document.createElement('div');
+            postsContainer.className = 'blog-widget-posts-container';
+
+            const fragment = document.createDocumentFragment();
+
+            // --- Blog Post Display ---
+            const postsToDisplay = items.slice(0, config.maxPosts);
+            postsToDisplay.forEach(item => {
                 const title = item.title;
                 const link = item.link;
-                // Use thumbnail, replace size for higher res, or fallback to default
-                const imageUrl = item.thumbnail ? item.thumbnail.replace('/s72-c/', '/s800/') : config.defaultImageUrl;
 
-                // Create a snippet from the description
+                // Create a temporary div to parse the description HTML
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = item.description;
+
+                // Extract image from description or use thumbnail/default
+                let imageUrl = config.defaultImageUrl;
+                const img = tempDiv.querySelector('img');
+
+                if (img && img.src && img.src.startsWith('http')) {
+                    imageUrl = img.src;
+                } else if (item.thumbnail) {
+                    // Use thumbnail, replace size for higher res
+                    imageUrl = item.thumbnail.replace('/s72-c/', '/s800/');
+                }
+
+                // Create a snippet from the description
                 const snippet = tempDiv.textContent.trim().substring(0, 100) + '...';
 
                 const postElement = document.createElement('div');
-                postElement.classList.add('blog-post');
+                postElement.classList.add('blog-widget-post');
                 postElement.innerHTML = `
                     <a href="${link}" target="_blank" rel="noopener noreferrer">
-                        <img src="${imageUrl}" alt="${title}">
-                        <h3>${title}</h3>
-                        <p>${snippet}</p>
+                        <div class="blog-widget-post-image-container">
+                            <img src="${imageUrl}" alt="${title}" class="blog-widget-post-image">
+                        </div>
+                        <div class="blog-widget-post-content">
+                            <h3 class="blog-widget-post-title">${title}</h3>
+                            <p class="blog-widget-post-snippet">${snippet}</p>
+                        </div>
                     </a>
                 `;
-                blogContainer.appendChild(postElement);
+                postsContainer.appendChild(postElement);
             });
+
+            // --- Category Panel Logic ---
+            if (config.categoryPanel.enabled) {
+                const categories = {};
+                const blogBaseUrl = new URL(data.feed.link).origin;
+
+                items.forEach(item => {
+                    if (item.categories && Array.isArray(item.categories)) {
+                        item.categories.forEach(category => {
+                            if (category.startsWith(config.categoryPanel.tagPrefix)) {
+                                const categoryName = category.substring(config.categoryPanel.tagPrefix.length).trim();
+                                if (categoryName) {
+                                    if (!categories[categoryName]) {
+                                        categories[categoryName] = {
+                                            name: categoryName,
+                                            url: `${blogBaseUrl}/search/label/${encodeURIComponent(categoryName)}`,
+                                            lastUpdated: new Date(item.pubDate).getTime()
+                                        };
+                                    } else {
+                                        categories[categoryName].lastUpdated = Math.max(
+                                            categories[categoryName].lastUpdated,
+                                            new Date(item.pubDate).getTime()
+                                        );
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+
+                let sortedCategories = Object.values(categories);
+                if (config.categoryPanel.orderBy === 'alphabetical') {
+                    sortedCategories.sort((a, b) => a.name.localeCompare(b.name));
+                } else if (config.categoryPanel.orderBy === 'most-recent') {
+                    sortedCategories.sort((a, b) => b.lastUpdated - a.lastUpdated);
+                }
+
+                const categoryPanel = document.createElement('div');
+                categoryPanel.classList.add('blog-widget-post', 'blog-widget-category-panel');
+
+                if (sortedCategories.length > 0) {
+                    categoryPanel.innerHTML = `
+                        <div class="blog-widget-post-content">
+                            <h3 class="blog-widget-post-title">${config.categoryPanel.label}</h3>
+                            <ul>
+                                ${sortedCategories.map(c => `<li><a href="${c.url}">${c.name}</a></li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    categoryPanel.innerHTML = `
+                        <div class="blog-widget-post-content">
+                            <p>${config.categoryPanel.emptyMessage}</p>
+                        </div>
+                    `;
+                }
+
+                if (config.categoryPanel.panelPosition === 'first-card') {
+                    postsContainer.prepend(categoryPanel);
+                } else { // 'last-card' is the default
+                    postsContainer.appendChild(categoryPanel);
+                }
+            }
+
+            fragment.appendChild(postsContainer);
+            // Clear container and append the fragment
+            blogContainer.innerHTML = '';
+            blogContainer.appendChild(fragment);
 
         } catch (error) {
             console.error("Error fetching or parsing RSS feed:", error);
