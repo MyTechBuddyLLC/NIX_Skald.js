@@ -39,12 +39,18 @@ There are no prerequisites for using this widget.
 
 The widget can be configured by creating a `blogWidgetConfig` object in your HTML file before including the `blog-widget.js` script.
 
-| Option            | Description                                        | Default Value                                                |
-| ----------------- | -------------------------------------------------- | ------------------------------------------------------------ |
-| `rssUrl`          | The URL of the RSS feed to fetch.                  | `https://mytechbuddyblog.blogspot.com/feeds/posts/default`   |
-| `containerId`     | The ID of the HTML element to render the widget in. | `blog-widget-container`                                     |
-| `maxPosts`        | The maximum number of blog posts to display.       | `3`                                                          |
-| `defaultImageUrl` | The URL of the default image to use for blog posts. | `https://via.placeholder.com/800x400.png?text=Blog+Post`       |
+| Option | Description | Default Value |
+| --- | --- | --- |
+| `rssUrl` | The URL of the RSS feed to fetch. | `https://mytechbuddyblog.blogspot.com/feeds/posts/default` |
+| `containerId` | The ID of the HTML element to render the widget in. | `blog-widget-container` |
+| `maxPosts` | The maximum number of blog posts to display. | `3` |
+| `defaultImageUrl` | The URL of the default image to use for blog posts. | `https://via.placeholder.com/800x400.png?text=Blog+Post` |
+| `categoryPanel.enabled` | Whether to display the category panel. | `false` |
+| `categoryPanel.label` | The title of the category panel. | `'Categories'` |
+| `categoryPanel.tagPrefix` | The prefix to filter categories by. | `''` |
+| `categoryPanel.panelPosition` | The position of the category panel. | `'first-card'` |
+| `categoryPanel.orderBy` | The sort order for the categories. | `'alphabetical'` |
+| `categoryPanel.emptyMessage` | The message to display when no categories are found. | `'No categories found'` |
 
 ## Examples
 
