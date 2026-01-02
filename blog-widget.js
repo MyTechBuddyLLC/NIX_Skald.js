@@ -4,12 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
         containerId: "blog-widget-container",
         maxPosts: 3,
         defaultImageUrl: "https://via.placeholder.com/800x400.png?text=Blog+Post",
-        series: {
+        categoryPanel: {
             enabled: false,
-            label: "Series",
-            tagPrefix: "series-",
-            menuPosition: "first-card", // 'first-card', 'last-card', 'top', 'bottom'
-            orderBy: "alphabetical" // 'alphabetical', 'most-recent'
+            label: "Categories",
+            tagPrefix: "",
+            panelPosition: "first-card", // 'first-card' or 'last-card'
+            orderBy: "alphabetical", // 'alphabetical' or 'most-recent'
+            emptyMessage: "No categories found"
         }
     };
 
@@ -102,68 +103,66 @@ document.addEventListener("DOMContentLoaded", () => {
                 postsContainer.appendChild(postElement);
             });
 
-            // --- Series Menu Logic ---
-            if (config.series.enabled) {
-                const series = {};
+            // --- Category Panel Logic ---
+            if (config.categoryPanel.enabled) {
+                const categories = {};
                 const blogBaseUrl = new URL(data.feed.link).origin;
 
                 items.forEach(item => {
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = item.description;
-                    const postText = tempDiv.textContent || "";
-                    const lines = postText.split('\n');
-
-
-                    lines.forEach(line => {
-                        if (line.trim().startsWith(config.series.tagPrefix)) {
-                            // Extract text after the prefix, trim it, and remove surrounding quotes
-                            const seriesName = line.substring(line.indexOf(config.series.tagPrefix) + config.series.tagPrefix.length).trim().replace(/^"|"$/g, '');
-                            if (seriesName) {
-                                if (!series[seriesName]) {
-                                    series[seriesName] = {
-                                        name: seriesName,
-                                        url: `${blogBaseUrl}/search/label/${encodeURIComponent(seriesName)}`,
-                                        lastUpdated: new Date(item.pubDate).getTime()
-                                    };
-                                } else {
-                                    series[seriesName].lastUpdated = Math.max(
-                                        series[seriesName].lastUpdated,
-                                        new Date(item.pubDate).getTime()
-                                    );
+                    if (item.categories && Array.isArray(item.categories)) {
+                        item.categories.forEach(category => {
+                            if (category.startsWith(config.categoryPanel.tagPrefix)) {
+                                const categoryName = category.substring(config.categoryPanel.tagPrefix.length).trim();
+                                if (categoryName) {
+                                    if (!categories[categoryName]) {
+                                        categories[categoryName] = {
+                                            name: categoryName,
+                                            url: `${blogBaseUrl}/search/label/${encodeURIComponent(categoryName)}`,
+                                            lastUpdated: new Date(item.pubDate).getTime()
+                                        };
+                                    } else {
+                                        categories[categoryName].lastUpdated = Math.max(
+                                            categories[categoryName].lastUpdated,
+                                            new Date(item.pubDate).getTime()
+                                        );
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 });
 
-                let sortedSeries = Object.values(series);
-                if (config.series.orderBy === 'alphabetical') {
-                    sortedSeries.sort((a, b) => a.name.localeCompare(b.name));
-                } else if (config.series.orderBy === 'most-recent') {
-                    sortedSeries.sort((a, b) => b.lastUpdated - a.lastUpdated);
+                let sortedCategories = Object.values(categories);
+                if (config.categoryPanel.orderBy === 'alphabetical') {
+                    sortedCategories.sort((a, b) => a.name.localeCompare(b.name));
+                } else if (config.categoryPanel.orderBy === 'most-recent') {
+                    sortedCategories.sort((a, b) => b.lastUpdated - a.lastUpdated);
                 }
 
-                if (sortedSeries.length > 0) {
-                    const seriesMenu = document.createElement('div');
-                    seriesMenu.id = 'blog-widget-series-menu'; // Assign an ID for easy selection
-                    seriesMenu.classList.add('blog-widget-series-menu');
-                    seriesMenu.innerHTML = `
-                        <h3>${config.series.label}</h3>
-                        <ul>
-                            ${sortedSeries.map(s => `<li><a href="${s.url}">${s.name}</a></li>`).join('')}
-                        </ul>
-                    `;
+                const categoryPanel = document.createElement('div');
+                categoryPanel.classList.add('blog-widget-post', 'blog-widget-category-panel');
 
-                    // Handle 'top' and 'bottom' positions separately as they are outside the container
-                    if (config.series.menuPosition === 'top') {
-                        blogContainer.before(seriesMenu);
-                    } else if (config.series.menuPosition === 'bottom') {
-                        blogContainer.after(seriesMenu);
-                    } else if (config.series.menuPosition === 'first-card') {
-                        postsContainer.prepend(seriesMenu);
-                    } else { // 'last-card' is the default
-                        postsContainer.appendChild(seriesMenu);
-                    }
+                if (sortedCategories.length > 0) {
+                    categoryPanel.innerHTML = `
+                        <div class="blog-widget-post-content">
+                            <h3 class="blog-widget-post-title">${config.categoryPanel.label}</h3>
+                            <ul>
+                                ${sortedCategories.map(c => `<li><a href="${c.url}">${c.name}</a></li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    categoryPanel.innerHTML = `
+                        <div class="blog-widget-post-content">
+                            <p>${config.categoryPanel.emptyMessage}</p>
+                        </div>
+                    `;
+                }
+
+                if (config.categoryPanel.panelPosition === 'first-card') {
+                    postsContainer.prepend(categoryPanel);
+                } else { // 'last-card' is the default
+                    postsContainer.appendChild(categoryPanel);
                 }
             }
 
