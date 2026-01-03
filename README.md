@@ -48,8 +48,8 @@ The widget can be configured by creating a `blogWidgetConfig` object in your HTM
 | `categoryPanel.enabled` | Whether to display the category panel. | No | `false` |
 | `categoryPanel.label` | The title of the category panel. | No | `'Categories'` |
 | `categoryPanel.tagPrefix` | The prefix to filter categories by. | No | `''` |
-| `categoryPanel.panelPosition` | The position of the category panel. | No | `'first-card'` |
-| `categoryPanel.orderBy` | The sort order for the categories. | No | `'alphabetical'` |
+| `categoryPanel.panelPosition` | The position of the category panel. <br> Allowable values: `'first-card'`, `'last-card'` | No | `'first-card'` |
+| `categoryPanel.orderBy` | The sort order for the categories. <br> Allowable values: `'alphabetical'`, `'most-recent'` | No | `'alphabetical'` |
 | `categoryPanel.emptyMessage` | The message to display when no categories are found. | No | `'No categories found'` |
 
 
