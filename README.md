@@ -39,12 +39,19 @@ There are no prerequisites for using this widget.
 
 The widget can be configured by creating a `blogWidgetConfig` object in your HTML file before including the `blog-widget.js` script.
 
-| Option            | Description                                        | Default Value                                                |
-| ----------------- | -------------------------------------------------- | ------------------------------------------------------------ |
-| `rssUrl`          | The URL of the RSS feed to fetch.                  | `https://mytechbuddyblog.blogspot.com/feeds/posts/default`   |
-| `containerId`     | The ID of the HTML element to render the widget in. | `blog-widget-container`                                     |
-| `maxPosts`        | The maximum number of blog posts to display.       | `3`                                                          |
-| `defaultImageUrl` | The URL of the default image to use for blog posts. | `https://via.placeholder.com/800x400.png?text=Blog+Post`       |
+| Option | Description | Required | Default Value |
+| --- | --- | --- | --- |
+| `rssUrl` | The URL of the RSS feed to fetch. | Yes | `https://mytechbuddyblog.blogspot.com/feeds/posts/default` |
+| `containerId` | The ID of the HTML element to render the widget in. | No | `blog-widget-container` |
+| `maxPosts` | The maximum number of blog posts to display. | No | `3` |
+| `defaultImageUrl` | The URL of the default image to use for blog posts. | No | `https://via.placeholder.com/800x400.png?text=Blog+Post` |
+| `categoryPanel.enabled` | Whether to display the category panel. | No | `false` |
+| `categoryPanel.label` | The title of the category panel. | No | `'Categories'` |
+| `categoryPanel.tagPrefix` | The prefix to filter categories by. | No | `''` |
+| `categoryPanel.panelPosition` | The position of the category panel. | No | `'first-card'` |
+| `categoryPanel.orderBy` | The sort order for the categories. | No | `'alphabetical'` |
+| `categoryPanel.emptyMessage` | The message to display when no categories are found. | No | `'No categories found'` |
+
 
 ## Examples
 
@@ -69,9 +76,9 @@ This example shows how to use the widget with the default configuration.
 </html>
 ```
 
-### Advanced Example
+### Advanced Example with Category Panel
 
-This example shows how to use the widget with a custom configuration.
+This example shows how to use the widget with a custom configuration that enables the category panel.
 
 ```html
 <!DOCTYPE html>
@@ -89,8 +96,14 @@ This example shows how to use the widget with a custom configuration.
         const blogWidgetConfig = {
             rssUrl: "https://mytechbuddyblog.blogspot.com/feeds/posts/default",
             containerId: "my-blog-widget",
-            maxPosts: 5,
-            defaultImageUrl: "https://via.placeholder.com/800x400.png?text=My+Blog+Post"
+            maxPosts: 4,
+            categoryPanel: {
+                enabled: true,
+                label: "Featured Series",
+                tagPrefix: "Series:",
+                panelPosition: "last-card",
+                orderBy: "alphabetical"
+            }
         };
     </script>
     <script src="blog-widget.js"></script>
