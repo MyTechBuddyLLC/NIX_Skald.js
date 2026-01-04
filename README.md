@@ -51,13 +51,17 @@ The widget can be configured by creating a `blogWidgetConfig` object in your HTM
 | `categoryPanel.panelPosition` | The position of the category panel. <br> Allowable values: `'first-card'`, `'last-card'` | No | `'first-card'` |
 | `categoryPanel.orderBy` | The sort order for the categories. <br> Allowable values: `'alphabetical'`, `'most-recent'` | No | `'alphabetical'` |
 | `categoryPanel.emptyMessage` | The message to display when no categories are found. | No | `'No categories found'` |
+| `showBlogLink` | Whether to display a link to the main blog page. | No | `false` |
+| `blogLinkText` | The text for the blog link button. | No | `'View Blog'` |
+| `blogUrl` | The URL of the main blog page. | No | `''` |
+| `blogLinkTarget` | The target attribute for the blog link. | No | `'_blank'` |
 
 
 ## Examples
 
 ### Basic Example
 
-This example shows how to use the widget with the default configuration.
+This example shows how to use the widget with the default configuration, which will fetch posts from the default RSS feed and display the three most recent entries.
 
 ```html
 <!DOCTYPE html>
@@ -65,7 +69,7 @@ This example shows how to use the widget with the default configuration.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Widget</title>
+    <title>Blog Widget - Basic Example</title>
     <link rel="stylesheet" href="blog-widget.css">
 </head>
 <body>
@@ -76,9 +80,72 @@ This example shows how to use the widget with the default configuration.
 </html>
 ```
 
-### Advanced Example with Category Panel
+### Category Panel Example
 
-This example shows how to use the widget with a custom configuration that enables the category panel.
+This example demonstrates how to enable and configure the category panel. The panel will be displayed as the last card and will list categories in alphabetical order.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Widget - Category Panel</title>
+    <link rel="stylesheet" href="blog-widget.css">
+</head>
+<body>
+    <h1>My Blog</h1>
+    <div id="blog-widget-container"></div>
+    <script>
+        const blogWidgetConfig = {
+            rssUrl: "https://mytechbuddyblog.blogspot.com/feeds/posts/default",
+            maxPosts: 3,
+            categoryPanel: {
+                enabled: true,
+                label: "Topics",
+                panelPosition: "last-card",
+                orderBy: "alphabetical"
+            }
+        };
+    </script>
+    <script src="blog-widget.js"></script>
+</body>
+</html>
+```
+
+### "View Blog" Button Example
+
+This example shows how to add a "View Blog" button that links back to your main blog page.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Widget - View Blog Button</title>
+    <link rel="stylesheet" href="blog-widget.css">
+</head>
+<body>
+    <h1>My Blog</h1>
+    <div id="blog-widget-container"></div>
+    <script>
+        const blogWidgetConfig = {
+            rssUrl: "https://mytechbuddyblog.blogspot.com/feeds/posts/default",
+            maxPosts: 2,
+            showBlogLink: true,
+            blogUrl: "https://mytechbuddyblog.blogspot.com/",
+            blogLinkText: "See All Posts"
+        };
+    </script>
+    <script src="blog-widget.js"></script>
+</body>
+</html>
+```
+
+### Comprehensive Example
+
+This example showcases a more advanced configuration, combining the category panel and the "View Blog" button, along with other custom settings. This is a great starting point for a feature-rich implementation.
 
 ```html
 <!DOCTYPE html>
