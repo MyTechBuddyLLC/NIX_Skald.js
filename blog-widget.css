@@ -94,3 +94,21 @@
 .blog-widget-category-panel a:hover {
     text-decoration: underline;
 }
+
+.blog-widget-view-more-button {
+    display: block;
+    width: -moz-fit-content;
+    width: fit-content;
+    margin: 20px auto 0;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.blog-widget-view-more-button:hover {
+    background-color: #0056b3;
+}

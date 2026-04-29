@@ -11,7 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
             panelPosition: "first-card", // 'first-card' or 'last-card'
             orderBy: "alphabetical", // 'alphabetical' or 'most-recent'
             emptyMessage: "No categories found"
-        }
+        },
+        showBlogLink: false,
+        blogLinkText: 'View Blog',
+        blogUrl: '',
+        blogLinkTarget: '_blank'
     };
 
     // Deep merge the user's config with the default config
@@ -170,6 +174,16 @@ document.addEventListener("DOMContentLoaded", () => {
             // Clear container and append the fragment
             blogContainer.innerHTML = '';
             blogContainer.appendChild(fragment);
+
+            if (config.showBlogLink && config.blogUrl) {
+                const blogLinkButton = document.createElement('a');
+                blogLinkButton.href = config.blogUrl;
+                blogLinkButton.textContent = config.blogLinkText;
+                blogLinkButton.target = config.blogLinkTarget || '_blank';
+                blogLinkButton.rel = 'noopener noreferrer';
+                blogLinkButton.className = 'blog-widget-view-more-button';
+                blogContainer.appendChild(blogLinkButton);
+            }
 
         } catch (error) {
             console.error("Error fetching or parsing RSS feed:", error);
